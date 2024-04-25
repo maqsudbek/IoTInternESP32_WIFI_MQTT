@@ -1,5 +1,8 @@
 
 #include <Arduino.h>
+#include <PubSubClient.h> // Для MQTT
+#include <WiFi.h>
+
 
 // Include necessary libraries here
 // TODO: Add necessary libraries here
@@ -27,6 +30,15 @@ void setup(void)
   // 
 
 }
+
+const char* ssid = "YOUR_SSID"; // Имя WiFi сети
+const char* password = "YOUR_PASSWORD"; // Пароль от WiFi
+const char* mqtt_server = "broker_address"; // Адрес MQTT брокера
+
+WiFiClient espClient;
+PubSubClient client(espClient);
+
+
 
 /**********************************/
 // LOOP //
