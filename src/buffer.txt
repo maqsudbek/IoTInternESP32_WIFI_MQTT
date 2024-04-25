@@ -1,0 +1,72 @@
+
+#include <Arduino.h>
+
+// Include necessary libraries here
+// TODO: Add necessary libraries here
+#include <WiFi.h>
+#include <PubSubClient.h>
+#include <LiquidCrystal_I2C.h>
+
+// Define global variables here
+// TODO: Add global variables here
+#define buttonPin1 4
+#define buttonPin2 5
+const char* ssid = "Innbox-internet-93b710";
+const char* password = "INNBOX2907013416";
+unsigned long ttime;
+
+LiquidCrystal_I2C lcd(0x27, 16, 2);
+
+// Define functions here
+// TODO: Add functions here
+
+/**********************************/
+// SETUP //
+void setup(void) 
+{
+  // Initialize peripherals
+  // TODO: Initialize peripherals here
+  // TODO: LEDS, Buttons, LCD, etc.
+  Serial.begin(115200);
+  lcd.init();
+  lcd.backlight();
+  pinMode(buttonPin1, INPUT_PULLUP);
+  pinMode(buttonPin2, INPUT_PULLUP);
+
+  // Connect to WiFi
+  // TODO: Connect to WiFi hereSerial.println();
+  Serial.print("Connecting to ");
+  Serial.println(ssid);
+
+  WiFi.begin(ssid, password);
+
+  while (WiFi.status() != WL_CONNECTED) {
+    delay(500);
+    Serial.print(".");
+  }
+
+  Serial.println("");
+  Serial.println("WiFi connected");
+  Serial.println("IP address: ");
+  Serial.println(WiFi.localIP());
+
+  // Setup MQTT
+  // TODO: Setup MQTT here
+
+  // 
+
+}
+
+/**********************************/
+// LOOP //
+void loop(void) 
+{
+  // Keep WiFi and MQTT connection alive
+  // TODO: Keep WiFi and MQTT connection alive here
+  if ((WiFi.status() != WL_CONNECTED) && (millis() - ttime >=10000)) {
+    Serial.println("Reconnecting to WiFi...");
+    WiFi.disconnect();
+    WiFi.reconnect();
+    ttime = millis();
+  }
+}
