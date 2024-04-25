@@ -19,6 +19,8 @@ const int mqtt_port = 1883;
 const char* mqtt_username = "userTTPU";
 const char* mqtt_password = "mqttpass";
 const char* myID = "OtabekDavronbek";
+const char* pubTopic = "ttpu/iot/OtabekDavronbek/btn";
+const char* subTopic = "ttpu/iot/global/led";
 
 unsigned long lastReconnectAttempt = 0;
 const unsigned long reconnectInterval = 10000;
@@ -85,6 +87,11 @@ void setup(void)
   lcd.setCursor(3, 0); 
   lcd.print("WAY AHEAD!");
 
+  pinMode(BUTTON, INPUT);
+  pinMode(LED_R, OUTPUT);
+  pinMode(LED_G, OUTPUT);
+  pinMode(LED_Y, OUTPUT);
+
   // Connect to WiFi
   setup_wifi();
 
@@ -104,4 +111,12 @@ void loop(void)
     reconnect();
   }
   client.loop();
+
+  //Publish message when the button is pressed
+  if(digitalRead(BUTTON) == 0){
+    client.publish(pubTopic, "PRE55ED");
+    Serial.println("BUTTON PRESSED");
+  }
+
+  
 }
