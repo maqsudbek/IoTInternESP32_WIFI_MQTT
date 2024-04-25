@@ -45,11 +45,30 @@ void callback(char *topic, byte *payload, unsigned int length) {
  buffer = "";
  for (int i = 0; i < length; i++) {
      Serial.print((char) payload[i]);
-     buffer+=payload[i];
+     buffer+=(char)payload[i];
  }
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.print(buffer);
+  if(buffer.indexOf("red") != -1){
+    if(buffer.indexOf("on") != -1){
+      digitalWrite(red, HIGH);
+    }else if(buffer.indexOf("off") != -1){
+      digitalWrite(red, LOW);
+    }
+  }else if(buffer.indexOf("yellow") != -1){
+    if(buffer.indexOf("on") != -1){
+      digitalWrite(yellow, HIGH);
+    }else if(buffer.indexOf("off") != -1){
+      digitalWrite(yellow, LOW);
+    }
+  }else if(buffer.indexOf("green") != -1){
+    if(buffer.indexOf("on") != -1){
+      digitalWrite(green, HIGH);
+    }else if(buffer.indexOf("off") != -1){
+      digitalWrite(green, LOW);
+    }
+  }
  Serial.println();
  Serial.println("-----------------------");
 }
