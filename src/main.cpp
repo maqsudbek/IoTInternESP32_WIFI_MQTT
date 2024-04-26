@@ -114,6 +114,10 @@ void loop(void) {
     mqtt_client.loop();
   }
   if (digitalRead(BUTTON_PIN) == LOW) {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.printf("Sent message to topic:\n%s\n", btn_topic);
+  Serial.printf("Sent message to topic:\n%s\n", btn_topic);
     mqtt_client.publish(btn_topic, "TEST");
   }
 }
