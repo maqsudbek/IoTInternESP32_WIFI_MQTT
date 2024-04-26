@@ -27,6 +27,9 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 // Define functions here
 void mqtt_reconnect() {
   while (not mqtt_client.connected()) {
+  lcd.clear();
+  lcd.setCursor(0, 0);
+    lcd.print("Attempting MQTT connection...\n");
     Serial.print("Attempting MQTT connection...\n");
     if (mqtt_client.connect("u13229_client", mqtt_user, mqtt_password)) {
       mqtt_client.subscribe(led_topic);
@@ -36,15 +39,17 @@ void mqtt_reconnect() {
 }
 
 void mqtt_callback(char *topic, byte *message, int length) {
-    Serial.print("CALLBACK ENTERD<<<\n");
   String messageTemp = "";
   for (int i = 0; i < length; i++) {
     messageTemp += (char)message[i];
   }
-  Serial.printf("Message received, Message: %s, Topic: %s", messageTemp, topic);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.printf("Message received,\nMessage: %s, Topic: %s\n", messageTemp, topic);
+  Serial.printf("Message received,\nMessage: %s, Topic: %s\n", messageTemp, topic);
   int result_pin = -1;
-  // if (messageTemp.indexOf("}") > messageTemp.indexOf("}") &&
-  //     messageTemp.indexOf("{") != -1 && messageTemp.indexOf("}") != -1) {
+  if (messageTemp.indexOf("}") > messageTemp.indexOf("{") &&
+      messageTemp.indexOf("{") != -1 && messageTemp.indexOf("}") != -1) {
     if (messageTemp.indexOf("red") != -1) {
       result_pin = RED_PIN;
     } else if (messageTemp.indexOf("green") != -1) {
@@ -56,7 +61,7 @@ void mqtt_callback(char *topic, byte *message, int length) {
       digitalWrite(result_pin, HIGH);
     } else if (messageTemp.indexOf("off") != -1 && result_pin != -1) {
       digitalWrite(result_pin, LOW);
-    // }
+    }
   }
 }
 
@@ -64,8 +69,11 @@ void mqtt_callback(char *topic, byte *message, int length) {
 // SETUP //
 void setup(void) {
   Serial.begin(115200);
-  // lcd.begin(16, 2);
-  // lcd.setCursor(0, 0);
+  lcd.init();
+  lcd.backlight();
+  lcd.begin(16, 2);
+  lcd.clear();
+  lcd.setCursor(0, 0);
   pinMode(RED_PIN, OUTPUT);
   pinMode(GREEN_PIN, OUTPUT);
   pinMode(YELLOW_PIN, OUTPUT);
@@ -75,9 +83,9 @@ void setup(void) {
 
   // Connect to WiFi
   Serial.printf("Connecting to WiFI. ");
-  // WiFi.begin(ssid, password)
-  // lcd.setCursor(0, 0);
-  // lcd.print("Connecting to WiFI. ");
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print("Connecting to WiFI. ");
 
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
@@ -85,8 +93,9 @@ void setup(void) {
     // lcd.printf(". ");
     delay(1000);
   }
-  // lcd.setCursor(0, 0);
-  // lcd.printf("\nConnected, ip is %s", WiFi.localIP().toString());
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.printf("\nConnected, ip is %s", WiFi.localIP().toString());
   Serial.printf("\nConnected, ip is %s", WiFi.localIP().toString());
 
   // Setup MQTT
@@ -99,14 +108,12 @@ void setup(void) {
 /**********************************/
 // LOOP //
 void loop(void) {
-    if (!mqtt_client.connected())
-    {
-        mqtt_reconnect();
-    }
-    else {
-        mqtt_client.loop();
-    }
-    if (digitalRead(BUTTON_PIN)==LOW){
-        mqtt_client.publish(btn_topic, "TEST");
-    }
+  if (!mqtt_client.connected()) {
+    mqtt_reconnect();
+  } else {
+    mqtt_client.loop();
+  }
+  if (digitalRead(BUTTON_PIN) == LOW) {
+    mqtt_client.publish(btn_topic, "TEST");
+  }
 }
