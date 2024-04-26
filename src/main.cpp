@@ -54,7 +54,13 @@ void callback(char* topic, byte* payload, unsigned int length) {
   Serial.print("Message arrived [");
   Serial.print(topic);
   Serial.print("] ");
-  
+
+  String msg;
+  for(int i = 0; i < length; i++){
+    msg = msg + (char)payload[i];
+  }
+  Serial.println(msg);
+
   DynamicJsonDocument doc(128);
   DeserializationError error = deserializeJson(doc, payload, length);
   
@@ -64,7 +70,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     return;
   }
   
-  if (strncmp(topic, "ttpu/", 5) == 0) {
+  if (strncmp(topic, "ttpu", 4) == 0) {
     if (doc.containsKey("red")) {
       if (strcmp(doc["red"], "on") == 0) {
         digitalWrite(RED_LED_PIN, HIGH);
