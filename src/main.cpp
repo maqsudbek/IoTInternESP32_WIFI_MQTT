@@ -108,6 +108,7 @@ void setup(void) {
 /**********************************/
 // LOOP //
 void loop(void) {
+  // Keep WiFi and MQTT connection alive
   if (!mqtt_client.connected()) {
     mqtt_reconnect();
   } else {
@@ -120,4 +121,3 @@ void loop(void) {
   Serial.printf("Sent message to topic:\n%s\n", btn_topic);
     mqtt_client.publish(btn_topic, "TEST");
   }
-}
