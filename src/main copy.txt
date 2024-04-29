@@ -11,14 +11,14 @@
 #define yellow 33
 #define green 25
 #define buttonPin 26
+//#define buttonPin1 4
+//#define buttonPin2 5
 //const char* ssid = "Innbox-internet-93b710";
 //const char* password = "INNBOX2907013416";
 //const char* ssid = "S20plus";
 //const char* password = "ynjw9729";
 const char* ssid = "IoTExperiment";
 const char* password = "iotexperiment303ab";
-//const char* ssid = "TURIN";
-//const char* password = "qwerty123";
 unsigned long ttime;
 unsigned long ttimeB;
 
@@ -84,6 +84,8 @@ void setup(void)
   lcd.init();
   lcd.backlight();
   pinMode(buttonPin, INPUT);
+  //pinMode(buttonPin1, INPUT_PULLUP);
+  //pinMode(buttonPin2, INPUT_PULLUP);
   pinMode(red, OUTPUT);
   pinMode(yellow, OUTPUT);
   pinMode(green, OUTPUT);
