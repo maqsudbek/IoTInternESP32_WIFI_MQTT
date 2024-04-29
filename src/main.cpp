@@ -25,7 +25,8 @@ const char* subTopic = "ttpu/iot/global/led";
 unsigned long lastReconnectAttempt = 0;
 const unsigned long reconnectInterval = 10000;
 
-WiFiClient espClient;
+LiquidCrystal_I2C lcd(lcdAddress, 16, 2); // initializing LCD with the address, columns, rows
+WiFiClient espClient; 
 PubSubClient client(espClient);
 
 // Define functions here
@@ -51,6 +52,7 @@ void setup_wifi() {
     //Function to set up MQTT connection 
 void setup_mqtt(){
   client.setServer(mqtt_server, mqtt_port);
+  client.setCallback(callback);
 }
     //Function to reconnect to MQTT
 void reconnect(){
@@ -69,10 +71,41 @@ void reconnect(){
     else{
       Serial.print("failure, rc = ");
       Serial.print(client.state());
-      Serial.println("try again in  seconds");
+      Serial.println("try again in 5 seconds");
     }
   }
 }
+
+void callback(char* topic, byte* payload, unsigned int length) {
+  // Handle incoming MQTT messages
+  Serial.print("Message arrived [");
+  Serial.print(topic);
+  Serial.print("] ");
+
+  // Convert payload to a string
+  String message;
+  for (int i = 0; i < length; i++) {
+    message += (char)payload[i];
+  }
+  Serial.println(message);
+
+  // Toggle LEDs and display message on LCD
+  if (message.indexOf("toggle_led_r") != -1) {
+    digitalWrite(LED_R, message.charAt(message.indexOf("toggle_led_r") + 13) == '1' ? HIGH : LOW);
+  }
+  if (message.indexOf("toggle_led_g") != -1) {
+    digitalWrite(LED_G, message.charAt(message.indexOf("toggle_led_g") + 13) == '1' ? HIGH : LOW);
+  }
+  if (message.indexOf("toggle_led_y") != -1) {
+    digitalWrite(LED_Y, message.charAt(message.indexOf("toggle_led_y") + 13) == '1' ? HIGH : LOW);
+  }
+  if (message.indexOf("lcd_message") != -1) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(message.substring(message.indexOf("lcd_message") + 13));
+  }
+}
+
 /**********************************/
 // SETUP //
 void setup(void) 
@@ -80,7 +113,6 @@ void setup(void)
   Serial.begin(115200);
 
   // Initialize peripherals
-  LiquidCrystal_I2C lcd(lcdAddress, 16, 2); // initializing LCD with the address, columns, rows
   Wire.begin();
   lcd.begin(16, 2);
   lcd.backlight(); // turn backlight on
@@ -117,6 +149,4 @@ void loop(void)
     client.publish(pubTopic, "PRE55ED");
     Serial.println("BUTTON PRESSED");
   }
-
-  
 }
