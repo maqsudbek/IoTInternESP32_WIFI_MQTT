@@ -7,14 +7,18 @@
 #include <WiFi.h>
 
 // Define global variables here
+// WiFi credentials
 const char *ssid = "ab's Galaxy Note20 Ultra";
 const char *password = "1tah0323";
+// MQTT credentials
 const char *mqtt_broker_ip = "192.168.237.157";
 const int mqtt_port = 1883;
 const char *mqtt_user = "userTTPU";
 const char *mqtt_password = "mqttpass";
+// MQTT topics
 const char *led_topic = "ttpu/iot/global/led";
 const char *btn_topic = "ttpu/iot/u13229/btn";
+// Pins
 const int GREEN_PIN = 25;
 const int YELLOW_PIN = 33;
 const int RED_PIN = 32;
@@ -71,7 +75,6 @@ void mqtt_callback(char *topic, byte *message, int length) {
 }
 
 void check_button() {
-
   if (digitalRead(BUTTON_PIN) == LOW) {
     if (millis() - debounce_millis < debounce_threshold) {
       debounce_millis = millis();
@@ -89,6 +92,7 @@ void check_button() {
 /**********************************/
 // SETUP //
 void setup(void) {
+  // Initialize peripherals
   Serial.begin(115200);
   lcd.init();
   lcd.backlight();
@@ -123,12 +127,12 @@ void setup(void) {
   mqtt_client.setServer(mqtt_broker_ip, mqtt_port);
   mqtt_client.setCallback(mqtt_callback);
 
-  //
 }
 
 /**********************************/
 // LOOP //
 void loop(void) {
+  // Keep WiFi and MQTT connection alive
   if (!mqtt_client.connected()) {
     mqtt_reconnect();
   } else {
