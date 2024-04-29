@@ -7,18 +7,26 @@
 #include <WiFi.h>
 
 // Define global variables here
+// WiFi credentials
 const char *ssid = "ab's Galaxy Note20 Ultra";
 const char *password = "1tah0323";
-const char *mqtt_broker_ip = "mqtt.iotserver.uz";
+// MQTT credentials
+const char *mqtt_broker_ip = "192.168.237.157";
 const int mqtt_port = 1883;
 const char *mqtt_user = "userTTPU";
 const char *mqtt_password = "mqttpass";
+// MQTT topics
 const char *led_topic = "ttpu/iot/global/led";
 const char *btn_topic = "ttpu/iot/u13229/btn";
+// Pins
 const int GREEN_PIN = 25;
 const int YELLOW_PIN = 33;
 const int RED_PIN = 32;
 const int BUTTON_PIN = 26;
+
+// Button debouncing
+unsigned long debounce_millis = -1000;
+const unsigned long debounce_threshold = 200;
 
 WiFiClient esp_client;
 PubSubClient mqtt_client(esp_client);
@@ -27,8 +35,8 @@ LiquidCrystal_I2C lcd(0x27, 16, 2);
 // Define functions here
 void mqtt_reconnect() {
   while (not mqtt_client.connected()) {
-  lcd.clear();
-  lcd.setCursor(0, 0);
+    lcd.clear();
+    lcd.setCursor(0, 0);
     lcd.print("Attempting MQTT connection...\n");
     Serial.print("Attempting MQTT connection...\n");
     if (mqtt_client.connect("u13229_client", mqtt_user, mqtt_password)) {
@@ -46,7 +54,8 @@ void mqtt_callback(char *topic, byte *message, int length) {
   lcd.clear();
   lcd.setCursor(0, 0);
   lcd.printf("Message received,\nMessage: %s, Topic: %s\n", messageTemp, topic);
-  Serial.printf("Message received,\nMessage: %s, Topic: %s\n", messageTemp, topic);
+  Serial.printf("Message received,\nMessage: %s, Topic: %s\n", messageTemp,
+                topic);
   int result_pin = -1;
   if (messageTemp.indexOf("}") > messageTemp.indexOf("{") &&
       messageTemp.indexOf("{") != -1 && messageTemp.indexOf("}") != -1) {
@@ -65,9 +74,25 @@ void mqtt_callback(char *topic, byte *message, int length) {
   }
 }
 
+void check_button() {
+  if (digitalRead(BUTTON_PIN) == LOW) {
+    if (millis() - debounce_millis < debounce_threshold) {
+      debounce_millis = millis();
+      return;
+    }
+    debounce_millis = millis();
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.printf("Sent message to topic:\n%s\n", btn_topic);
+    Serial.printf("Sent message to topic:\n%s\n", btn_topic);
+    mqtt_client.publish(btn_topic, "TEST");
+  }
+}
+
 /**********************************/
 // SETUP //
 void setup(void) {
+  // Initialize peripherals
   Serial.begin(115200);
   lcd.init();
   lcd.backlight();
@@ -102,7 +127,6 @@ void setup(void) {
   mqtt_client.setServer(mqtt_broker_ip, mqtt_port);
   mqtt_client.setCallback(mqtt_callback);
 
-  //
 }
 
 /**********************************/
@@ -114,10 +138,5 @@ void loop(void) {
   } else {
     mqtt_client.loop();
   }
-  if (digitalRead(BUTTON_PIN) == LOW) {
-  lcd.clear();
-  lcd.setCursor(0, 0);
-  lcd.printf("Sent message to topic:\n%s\n", btn_topic);
-  Serial.printf("Sent message to topic:\n%s\n", btn_topic);
-    mqtt_client.publish(btn_topic, "TEST");
-  }
+  check_button();
+}
