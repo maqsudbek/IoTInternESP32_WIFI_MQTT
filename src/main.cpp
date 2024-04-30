@@ -5,15 +5,15 @@
 #include <ArduinoJson.h>
 
 // Check if the JSON object has "red", "yellow", and "green" keys
-const char* ssid = "IoTExperiment";
-const char* password = "iotexperiment303ab";
+const char* ssid = "IoTPrivate";
+const char* password = "iotprivate303";
 WebServer server(80);
 
 // MQTT credentials
-const char* mqtt_server = "mqtt.iotserver.uz";
+const char* mqtt_server = "tcp://192.168.10.105";
 const int mqtt_port = 1883;
-const char* mqtt_username = "userTTPU";
-const char* mqtt_password = "mqttpass";
+const char* mqtt_username = "spirealm";
+const char* mqtt_password = "spirealm";
 
 // MQTT client unique ID
 const char *mqtt_client_id = "ttpuMukhlisa";
