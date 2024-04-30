@@ -27,7 +27,6 @@ const int mqtt_port = 1883;
 const char *topic = "ttpu/iot/UsmonovQ/btn";
 
 
-
 String buffer;
 
 
