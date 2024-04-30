@@ -1,24 +1,27 @@
-// Include necessary libraries here
+// INCLUDE NECESSARY LIBRARIES HERE
 #include <Arduino.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
 #include <LiquidCrystal_I2C.h>
 #include <Wire.h>
 
-// Define global variables here
+// DEFINE GLOBAL VARIABLES HERE
+
 #define lcdAddress 0x27 // link to the address number of LCD
 #define LED_R 32
 #define LED_G 25
 #define LED_Y 33
 #define BUTTON 26
+#define SDA 21
+#define SCL 22
 
-const char* ssid = "IoTLaB";
-const char* password = "iot303abab";
-const char* mqtt_server = "mqtt.iotserver.uz";
+const char* ssid = "IoTPrivate";
+const char* password = "iotprivate303";
+const char* mqtt_server = "192.168.10.111";
 const int mqtt_port = 1883;
-const char* mqtt_username = "userTTPU";
-const char* mqtt_password = "mqttpass";
-const char* myID = "OtabekDavronbek";
+const char* mqtt_username = "uNsPeCiFiEd";
+const char* mqtt_password = "HelloUzzer";
+const char* myID = "OtabekDavronbek11";
 const char* pubTopic = "ttpu/iot/OtabekDavronbek/btn";
 const char* subTopic = "ttpu/iot/global/led";
 
@@ -29,7 +32,10 @@ LiquidCrystal_I2C lcd(lcdAddress, 16, 2); // initializing LCD with the address, 
 WiFiClient espClient; 
 PubSubClient client(espClient);
 
-// Define functions here
+// DEFINE FUNCTIONS HERE 
+
+void callbackmqtt(char* topic, byte* payload, unsigned int length);
+
     // Function to set up WiFi connection
 void setup_wifi() {
   delay(10);
@@ -49,11 +55,12 @@ void setup_wifi() {
   Serial.print("IP address: ");
   Serial.println(WiFi.localIP());
 }
-    //Function to set up MQTT connection 
+
+    //Function to set up MQTT
 void setup_mqtt(){
-  client.setServer(mqtt_server, mqtt_port);
-  client.setCallback(callback);
+  client.subscribe(subTopic);
 }
+
     //Function to reconnect to MQTT
 void reconnect(){
   if(client.connected()){
@@ -65,18 +72,18 @@ void reconnect(){
     Serial.print("Attempting MQTT connection...");
     if(client.connect(myID, mqtt_username, mqtt_password)){
       Serial.println("connected");
- //     client.publish("ttpu/");
- //     client.subscribe("");
+      setup_mqtt();
     }
     else{
       Serial.print("failure, rc = ");
       Serial.print(client.state());
-      Serial.println("try again in 5 seconds");
+      Serial.println(" try again in 5 seconds");
     }
   }
 }
 
-void callback(char* topic, byte* payload, unsigned int length) {
+
+void callbackmqtt(char* topic, byte* payload, unsigned int length) {
   // Handle incoming MQTT messages
   Serial.print("Message arrived [");
   Serial.print(topic);
@@ -88,21 +95,25 @@ void callback(char* topic, byte* payload, unsigned int length) {
     message += (char)payload[i];
   }
   Serial.println(message);
+  lcd.clear();
+  lcd.setCursor(0, 0);
+  lcd.print(message);
 
   // Toggle LEDs and display message on LCD
-  if (message.indexOf("toggle_led_r") != -1) {
-    digitalWrite(LED_R, message.charAt(message.indexOf("toggle_led_r") + 13) == '1' ? HIGH : LOW);
+  if (message.indexOf("red") != -1) {
+    if(message.indexOf("on") != -1) 
+        {digitalWrite(LED_R, 1);}
+    else{digitalWrite(LED_R, 0);}
   }
-  if (message.indexOf("toggle_led_g") != -1) {
-    digitalWrite(LED_G, message.charAt(message.indexOf("toggle_led_g") + 13) == '1' ? HIGH : LOW);
+  if (message.indexOf("green") != -1) {
+    if(message.indexOf("on") != -1)
+        {digitalWrite(LED_G, 1);}
+    else{digitalWrite(LED_G, 0);}
   }
-  if (message.indexOf("toggle_led_y") != -1) {
-    digitalWrite(LED_Y, message.charAt(message.indexOf("toggle_led_y") + 13) == '1' ? HIGH : LOW);
-  }
-  if (message.indexOf("lcd_message") != -1) {
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print(message.substring(message.indexOf("lcd_message") + 13));
+  if (message.indexOf("yellow") != -1) {
+    if(message.indexOf("on") != -1)
+        {digitalWrite(LED_Y, 1);}
+    else{digitalWrite(LED_Y, 0);}
   }
 }
 
@@ -113,8 +124,8 @@ void setup(void)
   Serial.begin(115200);
 
   // Initialize peripherals
-  Wire.begin();
-  lcd.begin(16, 2);
+  Wire.begin(SDA, SCL); // initialize I2C pins
+  lcd.begin(16, 2); // connect to LCD with 16 cols and 2 rows
   lcd.backlight(); // turn backlight on
   lcd.setCursor(3, 0); 
   lcd.print("WAY AHEAD!");
@@ -126,9 +137,13 @@ void setup(void)
 
   // Connect to WiFi
   setup_wifi();
-
+  
   // Setup MQTT
-  setup_mqtt();
+  client.setServer(mqtt_server, mqtt_port);
+  client.setCallback(callbackmqtt);
+
+  // Attempting connection
+  reconnect();
 }
 
 /**********************************/
@@ -142,11 +157,12 @@ void loop(void)
   if(!client.connected()){
     reconnect();
   }
-  client.loop();
+
+  client.loop(); 
 
   //Publish message when the button is pressed
   if(digitalRead(BUTTON) == 0){
-    client.publish(pubTopic, "PRE55ED");
+    client.publish(pubTopic, "pressed");
     Serial.println("BUTTON PRESSED");
   }
 }
