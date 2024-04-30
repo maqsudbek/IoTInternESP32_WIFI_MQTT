@@ -26,9 +26,6 @@ const char *mqtt_password = "mqttpass";
 const int mqtt_port = 1883;
 const char *topic = "ttpu/iot/UsmonovQ/btn";
 
-// const char *subTopic = "ttpu/iot/global/led";
-// const char *mqtt_username = "TTPUstudent";
-// const char *mqtt_password = "studentpass";
 
 
 String buffer;
