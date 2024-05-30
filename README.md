@@ -3,9 +3,9 @@
 ------------------------------------------------
 ## In this Arduino sketch, I've implemented a system that connects an ESP32 device to a Wi-Fi network and an MQTT broker. The device subscribes to a specific MQTT topic to receive LED control commands and publishes a message when a button is pressed. Here's a breakdown of what I've done:
 
-## Include Libraries: You've included necessary libraries such as WiFi.h, PubSubClient.h, WebServer.h, and ArduinoJson.h to enable Wi-Fi connection, MQTT communication, web server functionality, and JSON parsing, respectively.
-## Global Variables: You've defined global variables including Wi-Fi credentials, MQTT server details, MQTT topics, GPIO pin assignments, and an instance of the PubSubClient class.
-## Setup Function: In the setup function, you've initialized serial communication, configured GPIO pins, connected to Wi-Fi, and connected to the MQTT broker.
+## Include Libraries: I've included necessary libraries such as WiFi.h, PubSubClient.h, WebServer.h, and ArduinoJson.h to enable Wi-Fi connection, MQTT communication, web server functionality, and JSON parsing, respectively.
+## Global Variables: I've defined global variables including Wi-Fi credentials, MQTT server details, MQTT topics, GPIO pin assignments, and an instance of the PubSubClient class.
+## Setup Function: In the setup function, I've initialized serial communication, configured GPIO pins, connected to Wi-Fi, and connected to the MQTT broker.
 ## Loop Function: The loop function continuously checks for incoming MQTT messages and button press events.
 ## Hardware Setup: The setupHardware function initializes GPIO pins for LED output and button input.
 ## Wi-Fi Connection: The connectWiFi function attempts to connect to the specified Wi-Fi network using the provided credentials.
