@@ -4,14 +4,14 @@
 #include <WebServer.h>
 #include <ArduinoJson.h>
 
-// Check if the JSON object has "red", "yellow", and "green" keys
+// Wi-Fi credentials
 const char* ssid = "IoTPrivate";
 const char* password = "iotprivate303";
-WebServer server(80);
+WebServer server(80); // Create a web server on port 80
 
 // MQTT credentials
-const char* mqtt_server = "tcp://192.168.10.105";
-const int mqtt_port = 1883;
+const char* mqtt_server = "tcp://192.168.10.105";// IP of MQTT broker
+const int mqtt_port = 1883; // MQTT port
 const char* mqtt_username = "spirealm";
 const char* mqtt_password = "spirealm";
 
@@ -47,21 +47,22 @@ void setup() {
 }
 
 void loop() {
-  client.loop();
-  handleButtonPress(); //Check for button press
+  client.loop(); // Handle MQTT tasks
+  handleButtonPress(); // Check for button press
  } 
 
 void setupHardware() {
   pinMode(redLedPin, OUTPUT);
   pinMode(yellowLedPin, OUTPUT);
   pinMode(greenLedPin, OUTPUT);
-  pinMode(buttonPin, INPUT_PULLUP);
+  pinMode(buttonPin, INPUT_PULLUP);// Setup button pin with internal pull-up resistor
 }
 
+// Connect to the external WiFi network
 void connectWiFi() {
   WiFi.disconnect(true);
   Serial.println("Connecting to WiFi...");
-  WiFi.begin(ssid, password); // Connect to the external WiFi network
+  WiFi.begin(ssid, password); 
   
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
@@ -77,13 +78,17 @@ void connectWiFi() {
 void connectMQTT() {
   client.setServer(mqtt_server, mqtt_port);
   client.setCallback(callback);
-  if (client.connect(mqtt_username, mqtt_username, mqtt_password)) {
-    Serial.println("Connected to MQTT broker");
-    client.subscribe(mqtt_topic_subscribe);
-  } else {
-    Serial.print("MQTT connection failed, rc=");
-    Serial.println(client.state());
-  }
+  while (!client.connected()) {
+    Serial.print("Connecting to MQTT broker...");
+    if (client.connect(mqtt_client_id, mqtt_username, mqtt_password)) {
+      Serial.println("connected");
+      client.subscribe(mqtt_topic_subscribe); // Subscribe to topic
+    } else {
+      Serial.print("failed, rc=");
+      Serial.print(client.state());
+      delay(2000); // Wait 2 seconds before retrying
+    }
+    }
 }
 
 // Handle MQTT messages
@@ -108,6 +113,7 @@ void callback(char* topic, byte* payload, unsigned int length) {
     Serial.println(error.c_str());
     return;
   }
+  
  // Check if the JSON object has "red", "yellow", and "green" keys
   if (doc.containsKey("red")) {
     const char* redState = doc["red"];
